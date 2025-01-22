@@ -12,7 +12,15 @@ app.use(express.json());
 const users: { name: string }[] = [];
 
 app.post('/user', (req: Request, res: Response) => {
-    res.status(200).send();
+    Promise.resolve(req.body.name).then((name) => {
+        if (!name || users.find(user => user.name === name)) {
+            throw new Error('Name is required')
+        }
+        return name;
+    }).then((name) => {
+        users.push({ name });
+        res.status(200).send();
+    }).catch((e: Error) => res.status(400).send({ error: e.message }))
 });
 
 app.get('/users', (req: Request, res: Response) => {
